@@ -1,0 +1,26 @@
+[
+  {
+    "caption": "Spotify: Next Track",
+    "command": "spotify_next_track"
+  },
+  {
+    "caption": "Spotify: Previous Track",
+    "command": "spotify_previous_track"
+  },
+  {
+    "caption": "Spotify: Pause",
+    "command": "spotify_pause"
+  },
+  {
+    "caption": "Spotify: Play",
+    "command": "spotify_play"
+  },
+  {
+    "caption": "Spotify: Toggle Shuffle",
+    "command": "spotify_toggle_shuffle"
+  },
+  {
+    "caption": "Spotify: Toggle Repeat",
+    "command": "spotify_toggle_repeat"
+  }
+]
