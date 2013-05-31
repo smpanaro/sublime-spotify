@@ -2,6 +2,9 @@ import sublime, sublime_plugin
 import sys
 import threading
 import time
+import urllib2
+from urllib import quote_plus
+import json
 
 # Wrap player interactions to compensate for different naming styles and platforms.
 class SpotifyPlayer():
@@ -9,19 +12,24 @@ class SpotifyPlayer():
         if sys.platform == "win32":
             # import win32com.client
             # c = win32com.client.gencache.EnsureDispatch("iTunes.Application")
-            pass
+            raise NotImplementedError("Sorry, there's no Windows support yet.")
         elif sys.platform == "darwin": # OS X
             print "importing os x shit"
             from ScriptingBridge import SBApplication
             # Get a reference to the client without launching it. 
             # Spotify will launch automatically when called.
             self.client = SBApplication.alloc().initWithBundleIdentifier_("com.spotify.client")
-            self.status_updater = SpotifyStatusUpdater(self)
-            self.status_updater.setDaemon(False)
-            self.status_updater.start()
+        else:
+            raise NotImplementedError("Sorry, your platform is not supported yet.")
+        self.status_updater = None
 
     def is_running(self):
         return self.client.isRunning()
+
+    def show_status_message(self):
+        if self.status_updater is None:
+            self.status_updater = SpotifyStatusUpdater(self)
+        self.status_updater.run()
 
     # Player State - determined from the following enum values
     # SpotifyEPlSStopped = 'kPSS',
@@ -59,22 +67,33 @@ class SpotifyPlayer():
     def play_pause(self):
         self.client.playpause()
 
+    def play_track(self, track_url, attempts=0):
+        if not self.is_running() or not self.is_playing():
+            if attempts > 10: return
+            sublime.set_timeout(lambda: self.play_track(track_url, attempts+1), 200)
+        self.client.playTrack_inContext_(track_url,"Spotify")
+        self.show_status_message()
+
     def play(self, attempts=0):
+        if not self.is_running() or not self.is_playing():
+            if attempts > 10: return
+            sublime.set_timeout(lambda: self.play(attempts+1), 200)
         self.client.play()
-        # One edge case: calling play when spotify is not launched.
-        # Spotify can take a few seconds to start up. Call play after that.
-        # Will only work if a song was previously playing.
-        if not self.is_playing() and attempts < 5:
-            sublime.set_timeout(lambda: self.play(attempts+1), 100)
+        self.show_status_message()
 
     def pause(self):
         self.client.pause()
 
     def next(self):
         self.client.nextTrack()
+        self.show_status_message()
 
     def previous(self):
+        # Call it twice - once to get back to the beginning 
+        # of this song and once to go back to the next.
         self.client.previousTrack()
+        self.client.previousTrack()
+        self.show_status_message()
 
     def toggle_shuffle(self):
         if self.client.shufflingEnabled():
@@ -90,45 +109,95 @@ class SpotifyPlayer():
             else: 
                 self.client.setRepeating_(True)
 
-class SpotifyCommand(sublime_plugin.TextCommand):
-    def __init__(self, view):
-        self.view = view
+class SpotifyCommand(sublime_plugin.WindowCommand):
+    def __init__(self, window):
+        self.window = window
         self.player = PLAYER
 
-# class SpotifyPlayPauseCommand(SpotifyCommand):
-#     def run(self, edit):
-#         self.player.play_pause()
-
 class SpotifyPlayCommand(SpotifyCommand):
-    def run(self, edit):
+    def run(self):
         self.player.play()
 
 class SpotifyPauseCommand(SpotifyCommand):
-    def run(self, edit):
+    def run(self):
         self.player.pause()
 
 class SpotifyNextTrackCommand(SpotifyCommand):
-    def run(self, edit):
+    def run(self):
         self.player.next()
 
 class SpotifyPreviousTrackCommand(SpotifyCommand):
-    def run(self, edit):
+    def run(self):
         self.player.previous()
 
 class SpotifyToggleShuffleCommand(SpotifyCommand):
-    def run(self, edit):
+    def run(self):
         self.player.toggle_shuffle()
 
 class SpotifyToggleRepeatCommand(SpotifyCommand):
-    def run(self, edit):
+    def run(self):
         self.player.toggle_repeat()
+
+class SpotifyNowPlaying(SpotifyCommand):
+    def run(self):
+        self.player.show_status_message()
+
+class SpotifySearchCommand(SpotifyCommand):
+    def run(self):
+        self.window.show_input_panel("Search Spotify", "", self.do_search, None, None)
+
+    def do_search(self, search):
+        search = quote_plus(search)
+
+        url = "http://ws.spotify.com/search/1/track.json?q={search}".format(search=search)
+        url_thread = ThreadedRequest(url, self)
+        url_thread.setDaemon(True)
+        url_thread.start()
+
+    def handle_response(self, resp, error_message):
+        if error_message is not None:
+            sublime.error_message("Unable to search:\n%s" % error_message)
+            return
+
+        res = json.loads(resp)
+        if res["info"]["num_results"] == 0:
+            self.window.show_input_panel("Search Spotify", "No results found, try again?", self.do_search, None, None)
+        else:
+            rows = []
+            self.urls = []
+            for track in res["tracks"]:
+                song = track.get("name","")
+                artists = ", ".join([a["name"] for a in track.get("artists", [])])
+                album = track.get("album", {}).get("name", "")
+                rows.append([u"{0} by {1}".format(song, artists), u"{0}".format(album)])
+                self.urls.append(track.get("href", ""))
+                if len(rows) > 30: break
+            self.window.show_quick_panel(rows, self.play_track_at_index)
+
+    def play_track_at_index(self, index):
+        self.player.play_track(self.urls[index])
+
+class ThreadedRequest(threading.Thread):
+    def __init__(self, url, caller):
+      threading.Thread.__init__(self)
+      self.url = url
+      self.caller = caller
+
+    def run(self):
+        error = None
+        try:
+            resp = urllib2.urlopen(self.url)
+            content = resp.read()
+        except e:
+            content = ""
+            error = e
+
+        sublime.set_timeout(lambda: self.caller.handle_response(content, error), 10)
 
 class SpotifyStatusUpdater(threading.Thread):
     def __init__(self, player):
         self.player = player
-        self.seconds_paused = 0.0
-        self.update_interval = .2 # seconds
-        threading.Thread.__init__(self)
+        self.time_run = 0
 
     def _get_min_sec_string(self,seconds):
         seconds = int(seconds)
@@ -143,10 +212,9 @@ class SpotifyStatusUpdater(threading.Thread):
         if self.player.get_duration() == 30:
             return "\t\tSpotify Advertisement"
 
-
         if self.player.is_playing(): icon = "|>"
         else: icon = "||"
-        return "\t\t{icon} - {song} - {artist} - {album} - {time}/{duration} ".format(
+        return u"\t\t{icon} - {song} - {artist} - {album} - {time}/{duration}".format(
             icon=icon,
             time=self._get_min_sec_string(self.player.get_position()),
             duration=self._get_min_sec_string(self.player.get_duration()),
@@ -154,25 +222,15 @@ class SpotifyStatusUpdater(threading.Thread):
             artist=self.player.get_artist(),
             album=self.player.get_album() )
 
-    # must be called on the main thread
-    def set_status_message(self, message):
-        # print sublime.status_message()
-        sublime.status_message(message)
-
     def run(self):
-        while True:
-            time.sleep(self.update_interval)
+        if self.time_run > 1000:
+            sublime.status_message('')
+            return
 
-            if self.player.is_running() and self.player.is_playing():
-                self.seconds_paused = 0.0
-            else:
-                self.seconds_paused += self.update_interval
-                if self.seconds_paused > 5:
-                    sublime.set_timeout(lambda: self.set_status_message(""), 0)
-                    continue
+        sublime.status_message(self._get_message())
+        self.time_run += 1
 
-            msg = self._get_message()
-            sublime.set_timeout(lambda: self.set_status_message(msg), 0)
+        sublime.set_timeout(lambda: self.run(), 10)
 
 
 PLAYER = SpotifyPlayer()

@@ -22,5 +22,13 @@
   {
     "caption": "Spotify: Toggle Repeat",
     "command": "spotify_toggle_repeat"
+  },
+  {
+    "caption": "Spotify: Search",
+    "command": "spotify_search"
+  },
+  {
+    "caption": "Spotify: Now Playing",
+    "command": "spotify_now_playing"
   }
 ]
