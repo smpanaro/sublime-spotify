@@ -14,7 +14,6 @@ class SpotifyPlayer():
             # c = win32com.client.gencache.EnsureDispatch("iTunes.Application")
             raise NotImplementedError("Sorry, there's no Windows support yet.")
         elif sys.platform == "darwin": # OS X
-            print "importing os x shit"
             from ScriptingBridge import SBApplication
             # Get a reference to the client without launching it. 
             # Spotify will launch automatically when called.
@@ -27,8 +26,6 @@ class SpotifyPlayer():
         return self.client.isRunning()
 
     def show_status_message(self):
-        if self.status_updater is None:
-            self.status_updater = SpotifyStatusUpdater(self)
         self.status_updater.run()
 
     # Player State - determined from the following enum values
@@ -194,10 +191,25 @@ class ThreadedRequest(threading.Thread):
 
         sublime.set_timeout(lambda: self.caller.handle_response(content, error), 10)
 
-class SpotifyStatusUpdater(threading.Thread):
+class SpotifyStatusUpdater():
     def __init__(self, player):
         self.player = player
-        self.time_run = 0
+
+        s = sublime.load_settings("Spotify.sublime-settings")
+        self.display_duration = int(s.get("status_duration"))
+        self.status_format = s.get("status_format")
+
+        self._cached_song = None
+        self._cached_artist = None
+        self._cached_album = None
+        self._cached_duration = None
+
+        self._update_delay = 100 # Udpate every n milliseconds.
+        self._cycles_left = self.display_duration * 1000 / self._update_delay
+
+        self._is_displaying = False
+        if self.display_duration < 0: self.run()
+
 
     def _get_min_sec_string(self,seconds):
         seconds = int(seconds)
@@ -210,27 +222,49 @@ class SpotifyStatusUpdater(threading.Thread):
             return ""
 
         if self.player.get_duration() == 30:
-            return "\t\tSpotify Advertisement"
+            return "Spotify Advertisement"
 
         if self.player.is_playing(): icon = "|>"
         else: icon = "||"
-        return u"\t\t{icon} - {song} - {artist} - {album} - {time}/{duration}".format(
+
+        # Simple caching. Relies on the odds of two consecutive 
+        # songs having the same title being very low.
+        # Should limit scripting bridge calls.
+        curr_song = self.player.get_song()
+        if self._cached_song != curr_song:
+            self._cached_song = curr_song
+            self._cached_artist = self.player.get_artist()
+            self._cached_album = self.player.get_album()
+            self._cached_duration = self._get_min_sec_string(self.player.get_duration())
+
+        return unicode(self.status_format).format(
             icon=icon,
             time=self._get_min_sec_string(self.player.get_position()),
-            duration=self._get_min_sec_string(self.player.get_duration()),
-            song=self.player.get_song(),
-            artist=self.player.get_artist(),
-            album=self.player.get_album() )
+            duration=self._cached_duration,
+            song=self._cached_song,
+            artist=self._cached_artist,
+            album=self._cached_album)
 
     def run(self):
-        if self.time_run > 1000:
+        if not self._is_displaying:
+            self._is_displaying = True
+            self._run()
+
+    def _run(self):
+        if self._cycles_left == 0:
             sublime.status_message('')
+            self._cycles_left = self.display_duration * 1000 / self._update_delay
+            self._is_displaying = False
             return
+        elif self._cycles_left > 0:
+            self._cycles_left -= 1
 
         sublime.status_message(self._get_message())
-        self.time_run += 1
-
-        sublime.set_timeout(lambda: self.run(), 10)
+        sublime.set_timeout(lambda: self._run(), self._update_delay)
 
 
+# This is kind of funky, but it keeps it so the player and updater
+# are singletons. (A new class gets instantiated for each command call
+# which would be less than ideal for these objects.)
 PLAYER = SpotifyPlayer()
+PLAYER.status_updater = SpotifyStatusUpdater(PLAYER)
