@@ -1,0 +1,20 @@
+{
+	"schema_version": "1.2",
+	"packages": [
+		{
+			"name": "Spotify Control",
+			"description": "Control Spotify without leaving your editor.",
+			"author": "Stephen Panaro",
+			"homepage": "https://github.com/smpanaro/sublime-spotify",
+			"last_modified": "2013-06-02 03:57:00",
+			"platforms": {
+				"osx": [
+					{
+						"version": "1.0",
+						"url": "https://nodeload.github.com/smpanaro/sublime-spotify/zip/1.0"
+					}
+				]
+			}
+		}
+	]
+}
