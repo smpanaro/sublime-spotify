@@ -27,8 +27,6 @@ class MusicPlayerStatusUpdater():
         return "%d:%.02d" % (m,s)
 
     def _get_message(self):
-        if not self.player.is_running() or self.player.is_stopped():
-            return ""
 
         if self.player.is_playing(): icon = "|>"
         else: icon = "||"
@@ -61,12 +59,14 @@ class MusicPlayerStatusUpdater():
 
     def _run(self):
         if self._cycles_left == 0:
-            sublime.status_message('')
+            sublime.status_message("")
             self._cycles_left = self.display_duration * 1000 / self._update_delay
             self._is_displaying = False
             return
         elif self._cycles_left > 0:
             self._cycles_left -= 1
 
-        sublime.status_message(self._get_message())
+
+        if self.player.is_running() and not self.player.is_stopped():
+            sublime.status_message(self._get_message())
         sublime.set_timeout(lambda: self._run(), self._update_delay)

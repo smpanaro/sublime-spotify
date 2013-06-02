@@ -28,7 +28,7 @@ class SpotifyPlayer():
     # SpotifyEPlSPlaying = 'kPSP',
     # SpotifyEPlSPaused = 'kPSp'
     def _get_state(self):
-        return self.client.properties()['playerState'].description()[-6:-2]
+        return self.client.properties()["playerState"].description()[-6:-2]
 
     def is_playing(self):
         return self._get_state() == "kPSP"
