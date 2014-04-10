@@ -1,5 +1,16 @@
 import sys
-import sublime
+import os
+# import sublime
+
+module_path = os.path.join(os.path.dirname(__file__), "PyObjC")
+sys.path.insert(0, module_path)
+try:
+    # from ScriptingBridge import SBApplication
+    from Cocoa import *
+    print("hi")
+except ImportError as e:
+    print("[SublimeSpotify: Failed to copy PyObjC module with exception:]")
+    print("[{e}]".format(e=e))
 
 # Wrap player interactions to compensate for different naming styles and platforms.
 class SpotifyPlayer():
@@ -9,7 +20,14 @@ class SpotifyPlayer():
             # c = win32com.client.gencache.EnsureDispatch("iTunes.Application")
             raise NotImplementedError("Sorry, there's no Windows support yet.")
         elif sys.platform == "darwin": # OS X
-            from ScriptingBridge import SBApplication
+
+
+
+
+
+
+
+
             # Get a reference to the client without launching it. 
             # Spotify will launch automatically when called.
             self.client = SBApplication.alloc().initWithBundleIdentifier_("com.spotify.client")
