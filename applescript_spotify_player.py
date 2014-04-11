@@ -87,15 +87,15 @@ class AppleScriptSpotifyPlayer():
         self.show_status_message()
 
     def toggle_shuffle(self):
-        if self._execute_command('tell application "Spotify" to shuffling enabled'):
-            if self._execute_command('tell application "Spotify" to shuffling'):
+        if self._execute_command('tell application "Spotify" to shuffling enabled') == "true":
+            if self._execute_command('tell application "Spotify" to shuffling') == "false":
                 self._execute_command('tell application "Spotify" to set shuffling to true')
             else:
                 self._execute_command('tell application "Spotify" to set shuffling to false')
 
     def toggle_repeat(self):
         if self._execute_command('tell application "Spotify" to repeating enabled'):
-            if self._execute_command('tell application "Spotify" to repeating'):
+            if self._execute_command('tell application "Spotify" to repeating') == "false":
                 self._execute_command('tell application "Spotify" to set repeating to true')
             else:
                 self._execute_command('tell application "Spotify" to set repeating to false')
