@@ -2,12 +2,12 @@ import sys
 import os
 import sublime
 
-from singleton import Singleton
-
-try:
+sublime3 = int(sublime.version()) >= 3000
+if sublime3:
+    from SublimeSpotify.singleton import Singleton
+else:
     from ScriptingBridge import SBApplication
-except:
-    pass
+    from singleton import Singleton
 
 # Wrap player interactions to compensate for different naming styles and platforms.
 @Singleton
