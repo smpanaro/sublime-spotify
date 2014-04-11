@@ -1,6 +1,5 @@
 import sublime
-
-import time
+import random
 
 class MusicPlayerStatusUpdater():
     def __init__(self, player):
@@ -15,12 +14,13 @@ class MusicPlayerStatusUpdater():
         self._cached_album = None
         self._cached_duration = None
 
-        self._update_delay = 500 # Udpate every n milliseconds.
+        self._update_delay = 400 # Udpate every n milliseconds.
         self._cycles_left = self.display_duration * 1000 // self._update_delay
+
+        self.bars = ["▁","▂","▄","▅"]
 
         self._is_displaying = False
         if self.display_duration < 0: self.run()
-
 
     def _get_min_sec_string(self,seconds):
         m = seconds//60
@@ -29,12 +29,15 @@ class MusicPlayerStatusUpdater():
 
     def _get_message(self):
 
-        if self.player.is_playing(): icon = "|>"
-        else: icon = "||"
+        if self.player.is_playing():
+            icon = "►"
+            random.shuffle(self.bars)
+        else:
+            icon = "∣∣"
 
         # Simple caching. Relies on the odds of two consecutive
         # songs having the same title being very low.
-        # Should limit scripting bridge calls.
+        # Should limit scripting calls.
         curr_song = self.player.get_song()
         if self._cached_song != curr_song:
             self._cached_song = curr_song
@@ -47,6 +50,7 @@ class MusicPlayerStatusUpdater():
             return "Spotify Advertisement"
 
         return self.status_format.format(
+            equalizer="".join(self.bars),
             icon=icon,
             time=self._get_min_sec_string(self.player.get_position()),
             duration=self._cached_duration,
@@ -70,4 +74,4 @@ class MusicPlayerStatusUpdater():
 
         if self.player.is_running() and not self.player.is_stopped():
             sublime.status_message(self._get_message())
-        sublime.set_timeout_async(lambda: self._run(), self._update_delay)
+            sublime.set_timeout_async(lambda: self._run(), self._update_delay)

@@ -9,6 +9,6 @@
 	"status_duration":-1
 
 	// Customize the status message. Possible values are:
-	// icon, song, artist, album, time, duration
+	// icon, song, artist, album, time, duration, equalizer
 	,"status_format":"{icon} - {song} - {artist} - {album} - {time}/{duration}"
 }
