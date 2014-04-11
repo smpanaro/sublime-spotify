@@ -62,16 +62,16 @@ class AppleScriptSpotifyPlayer():
 
     def play_track(self, track_url, attempts=0):
         # Wait for the application to launch.
-        # if not self.is_running() or not self.is_playing():
-        #     if attempts > 10: return
-        #     sublime.set_timeout(lambda: self.play_track(track_url, attempts+1), 200)
+        if not self.is_running():
+            if attempts > 10: return
+            sublime.set_timeout(lambda: self.play_track(track_url, attempts+1), 200)
         self._execute_command('tell application "Spotify" to play track "{}"'.format(track_url))
         self.show_status_message()
 
     def play(self, attempts=0):
-        # if not self.is_running() or not self.is_playing():
-        #     if attempts > 10: return
-        #     sublime.set_timeout(lambda: self.play(attempts+1), 200)
+        if not self.is_running():
+            if attempts > 10: return
+            sublime.set_timeout(lambda: self.play(attempts+1), 200)
         self._execute_command('tell application "Spotify" to play')
         self.show_status_message()
 
