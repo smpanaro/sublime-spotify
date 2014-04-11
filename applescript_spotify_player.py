@@ -67,16 +67,20 @@ class AppleScriptSpotifyPlayer():
         # Wait for the application to launch.
         if not self.is_running():
             if attempts > 10: return
-            sublime.set_timeout(lambda: self.play_track(track_url, attempts+1), 200)
-        self._execute_command('tell application "Spotify" to play track "{}"'.format(track_url))
-        self.show_status_message()
+            self._execute_command('tell application "Spotify" to activate')
+            sublime.set_timeout(lambda: self.play_track(track_url, attempts+1), 1000)
+        else:
+            self._execute_command('tell application "Spotify" to play track "{}"'.format(track_url))
+            self.show_status_message()
 
     def play(self, attempts=0):
         if not self.is_running():
             if attempts > 10: return
-            sublime.set_timeout(lambda: self.play(attempts+1), 200)
-        self._execute_command('tell application "Spotify" to play')
-        self.show_status_message()
+            self._execute_command('tell application "Spotify" to activate')
+            sublime.set_timeout(lambda: self.play(attempts+1), 1000)
+        else:
+            self._execute_command('tell application "Spotify" to play')
+            self.show_status_message()
 
     def pause(self):
         self._execute_command('tell application "Spotify" to pause')
@@ -86,6 +90,9 @@ class AppleScriptSpotifyPlayer():
         self.show_status_message()
 
     def previous(self):
+        # Call it twice - once to get back to the beginning
+        # of this song and once to go back to the next.
+        self._execute_command('tell application "Spotify" to previous track')
         self._execute_command('tell application "Spotify" to previous track')
         self.show_status_message()
 
