@@ -3,7 +3,10 @@ import os
 import sublime
 from subprocess import Popen, PIPE
 
-from SublimeSpotify.singleton import Singleton
+try:
+    from SublimeSpotify.singleton import Singleton
+except:
+    from singleton import Singleton
 
 # Wrap player interactions to compensate for different naming styles and platforms.
 @Singleton

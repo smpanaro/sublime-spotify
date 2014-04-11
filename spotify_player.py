@@ -2,15 +2,15 @@ import sys
 import os
 import sublime
 
-module_path = os.path.join(os.path.dirname(__file__), "PyObjC")
-sys.path.insert(0, module_path)
+from singleton import Singleton
+
 try:
     from ScriptingBridge import SBApplication
-    from Cocoa import *
-except ImportError as e:
+except:
     pass
 
 # Wrap player interactions to compensate for different naming styles and platforms.
+@Singleton
 class SpotifyPlayer():
     def __init__(self):
         if sys.platform == "win32":

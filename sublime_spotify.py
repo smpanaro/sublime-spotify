@@ -1,13 +1,22 @@
 import sublime, sublime_plugin
 import threading
-from urllib.request import urlopen
-from urllib.parse import quote_plus
 import json
-
 import time
 
-from SublimeSpotify.applescript_spotify_player import AppleScriptSpotifyPlayer as SpotifyPlayer
-from SublimeSpotify.status_updater import MusicPlayerStatusUpdater
+try: # ST2
+    from urllib.request import urlopen
+    from urllib.parse import quote_plus
+except: # ST3
+    from urllib2 import urlopen
+    from urllib import quote_plus
+
+sublime3 = int(sublime.version()) >= 3000
+if sublime3:
+    from SublimeSpotify.applescript_spotify_player import AppleScriptSpotifyPlayer as SpotifyPlayer
+    from SublimeSpotify.status_updater import MusicPlayerStatusUpdater
+else:
+    from spotify_player import SpotifyPlayer
+    from status_updater import MusicPlayerStatusUpdater
 
 class SpotifyCommand(sublime_plugin.WindowCommand):
     def __init__(self, window):

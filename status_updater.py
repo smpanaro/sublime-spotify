@@ -1,5 +1,14 @@
+# encoding: utf-8
+from __future__ import unicode_literals
+
 import sublime
 import random
+
+sublime3 = int(sublime.version()) >= 3000
+if sublime3:
+    set_timeout_async = sublime.set_timeout_async
+else:
+    set_timeout_async = sublime.set_timeout
 
 class MusicPlayerStatusUpdater():
     def __init__(self, player):
@@ -74,4 +83,4 @@ class MusicPlayerStatusUpdater():
 
         if self.player.is_running() and not self.player.is_stopped():
             sublime.status_message(self._get_message())
-            sublime.set_timeout_async(lambda: self._run(), self._update_delay)
+            set_timeout_async(lambda: self._run(), self._update_delay)
