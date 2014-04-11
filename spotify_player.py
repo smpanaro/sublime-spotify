@@ -5,12 +5,10 @@ import sublime
 module_path = os.path.join(os.path.dirname(__file__), "PyObjC")
 sys.path.insert(0, module_path)
 try:
-    # from ScriptingBridge import SBApplication
+    from ScriptingBridge import SBApplication
     from Cocoa import *
-    print("hi")
 except ImportError as e:
-    print("[SublimeSpotify: Failed to copy PyObjC module with exception:]")
-    print("[{e}]".format(e=e))
+    pass
 
 # Wrap player interactions to compensate for different naming styles and platforms.
 class SpotifyPlayer():

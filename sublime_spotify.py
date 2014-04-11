@@ -14,9 +14,7 @@ class SpotifyCommand(sublime_plugin.WindowCommand):
         self.window = window
         self.player = SpotifyPlayer.Instance()
         if not self.player.status_updater:
-            print("before self.player.status_updater", time.time())
             self.player.status_updater = MusicPlayerStatusUpdater(self.player)
-
 
 class SpotifyPlayCommand(SpotifyCommand):
     def run(self):
