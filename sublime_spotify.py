@@ -1,16 +1,22 @@
 import sublime, sublime_plugin
 import threading
-import urllib2
-from urllib import quote_plus
+from urllib.request import urlopen
+from urllib.parse import quote_plus
 import json
 
-from spotify_player import SpotifyPlayer
-from status_updater import MusicPlayerStatusUpdater
+import time
+
+from SublimeSpotify.applescript_spotify_player import AppleScriptSpotifyPlayer as SpotifyPlayer
+from SublimeSpotify.status_updater import MusicPlayerStatusUpdater
 
 class SpotifyCommand(sublime_plugin.WindowCommand):
     def __init__(self, window):
         self.window = window
-        self.player = PLAYER
+        self.player = SpotifyPlayer.Instance()
+        if not self.player.status_updater:
+            print("before self.player.status_updater", time.time())
+            self.player.status_updater = MusicPlayerStatusUpdater(self.player)
+
 
 class SpotifyPlayCommand(SpotifyCommand):
     def run(self):
@@ -57,7 +63,7 @@ class SpotifySearchCommand(SpotifyCommand):
             sublime.error_message("Unable to search:\n%s" % error_message)
             return
 
-        res = json.loads(resp)
+        res = json.loads(resp.decode('utf-8'))
         if res["info"]["num_results"] == 0:
             self.window.show_input_panel("Search Spotify", "No results found, try again?", self.do_search, None, None)
         else:
@@ -84,7 +90,7 @@ class ThreadedRequest(threading.Thread):
     def run(self):
         error = None
         try:
-            resp = urllib2.urlopen(self.url)
+            resp = urlopen(self.url)
             content = resp.read()
         except e:
             content = ""
@@ -92,9 +98,3 @@ class ThreadedRequest(threading.Thread):
 
         sublime.set_timeout(lambda: self.caller.handle_response(content, error), 10)
 
-
-# This is kind of funky, but it keeps it so the player and updater
-# are singletons. (A new class gets instantiated for each command call
-# which would be less than ideal for these objects.)
-PLAYER = SpotifyPlayer()
-PLAYER.status_updater = MusicPlayerStatusUpdater(PLAYER)

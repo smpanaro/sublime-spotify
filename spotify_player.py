@@ -1,6 +1,6 @@
 import sys
 import os
-# import sublime
+import sublime
 
 module_path = os.path.join(os.path.dirname(__file__), "PyObjC")
 sys.path.insert(0, module_path)
@@ -20,15 +20,7 @@ class SpotifyPlayer():
             # c = win32com.client.gencache.EnsureDispatch("iTunes.Application")
             raise NotImplementedError("Sorry, there's no Windows support yet.")
         elif sys.platform == "darwin": # OS X
-
-
-
-
-
-
-
-
-            # Get a reference to the client without launching it. 
+            # Get a reference to the client without launching it.
             # Spotify will launch automatically when called.
             self.client = SBApplication.alloc().initWithBundleIdentifier_("com.spotify.client")
         else:
@@ -99,7 +91,7 @@ class SpotifyPlayer():
         self.show_status_message()
 
     def previous(self):
-        # Call it twice - once to get back to the beginning 
+        # Call it twice - once to get back to the beginning
         # of this song and once to go back to the next.
         self.client.previousTrack()
         self.client.previousTrack()
@@ -109,12 +101,12 @@ class SpotifyPlayer():
         if self.client.shufflingEnabled():
             if self.client.shuffling():
                 self.client.setShuffling_(False)
-            else: 
+            else:
                 self.client.setShuffling_(True)
 
     def toggle_repeat(self):
         if self.client.repeatingEnabled():
             if self.client.repeating():
                 self.client.setRepeating_(False)
-            else: 
+            else:
                 self.client.setRepeating_(True)
