@@ -58,9 +58,18 @@ class SpotifySearchCommand(SpotifyCommand):
         self.window.show_input_panel("Search Spotify", "", self.do_search, None, None)
 
     def do_search(self, search):
-        search = quote_plus(search)
+        category = "track" #default
+        query = search
 
-        url = "http://ws.spotify.com/search/1/track.json?q={search}".format(search=search)
+        for c in ["artist", "album", "track"]:
+            if search.startswith(c):
+                category = c
+                query = search.replace(c + ":", "", 1).strip()
+                break
+
+        query = quote_plus(query)
+
+        url = "http://ws.spotify.com/search/1/{category}.json?q={query}".format(category=category, query=query)
         url_thread = ThreadedRequest(url, self)
         url_thread.setDaemon(True)
         url_thread.start()
@@ -73,9 +82,12 @@ class SpotifySearchCommand(SpotifyCommand):
         res = json.loads(resp.decode('utf-8'))
         if res["info"]["num_results"] == 0:
             self.window.show_input_panel("Search Spotify", "No results found, try again?", self.do_search, None, None)
-        else:
-            rows = []
-            self.urls = []
+            return
+
+        rows = []
+        self.urls = []
+
+        if "tracks" in res:
             for track in res["tracks"]:
                 song = track.get("name","")
                 artists = ", ".join([a["name"] for a in track.get("artists", [])])
@@ -83,9 +95,25 @@ class SpotifySearchCommand(SpotifyCommand):
                 rows.append([u"{0} by {1}".format(song, artists), u"{0}".format(album)])
                 self.urls.append(track.get("href", ""))
                 if len(rows) > 30: break
-            self.window.show_quick_panel(rows, self._play_track_at_index)
+        elif "albums" in res:
+            for album in res["albums"]:
+                name = album.get("name","")
+                artists = ", ".join([a["name"] for a in album.get("artists", [])])
+                rows.append([u"{0}".format(name), u"by {0}".format(artists)])
+                self.urls.append(album.get("href", ""))
+                if len(rows) > 30: break
+        elif "artists" in res:
+            for artist in res["artists"]:
+                name = artist.get("name", "")
+                rows.append([name,""])
+                self.urls.append(artist.get("href", ""))
+                if len(rows) > 30: break
+        else: #invalid response
+            return
+        self.window.show_quick_panel(rows, self._play_track_at_index)
 
     def _play_track_at_index(self, index):
+        if index == -1: return # dialog was closed
         self.player.play_track(self.urls[index])
 
 class ThreadedRequest(threading.Thread):
