@@ -1,0 +1,17 @@
+Sublime 1.1.0 Changelog
+
+Thanks for using SublimeSpotify! I'm happy to announce support for ST3 with this version. 
+
+I would also like to take the opportunity to remind you that there are settings (that should be now available in the preferences menu) to tweak what song info is displayed and how long it should be displayed for.
+
+Finally, you can now search for artists and albums by prepending your searches with "artist:" or "album:".
+e.g. Typing "album: Daft Punk" in the search box, will list albums by Daft Punk.
+
+Feel free to reach out to me with any questions/bugs:
+https://github.com/smpanaro
+https://twitter.com/flat
+
+Changes:
+    - Sublime Text 3 Support
+    - Search by categories (artist, album, track)
+    - Settings menu
