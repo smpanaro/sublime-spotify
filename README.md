@@ -9,13 +9,17 @@ Requirements
 ------------
 * OS X
 * Spotify
-* Sublime Text 2
+* Sublime Text 2 or 3
 
-Install
+Installation
 -------
-Copy this folder to `~/Library/Application Support/Sublime Text 2/Packages/`.
+**The easy way**: Install [Package Control](https://sublime.wbond.net/installation). Bring up the Command Pallete. Select "Package Control: Install Package", and select SublimeSpotify after the list appears.
 
-Access the command palette with `CMD`+`Shift`+`P` and type `Spotify` to select a command.
+**The other way**: Clone this repository and copy the folder to `~/Library/Application Support/Sublime Text 2/Packages/` or `~/Library/Application Support/Sublime Text 3/Packages/` depending on your version of Sublime.
+
+Usage
+-----
+Access the command palette with `CMD+Shift+P` and type `Spotify` to select a command.
 
 Commands include:
 * Play/Pause
@@ -24,7 +28,4 @@ Commands include:
 * Repeat/Shuffle
 * Now Playing
 
-TODO
-----
-* Package control!
-* Add Windows and Linux support
+Settings can be found in `Sublime Text -> Preferences -> Package Settings -> SublimeSpotify`. 
