@@ -13,8 +13,6 @@ except:
 class AppleScriptSpotifyPlayer():
     def __init__(self):
         if sys.platform == "win32":
-            # import win32com.client
-            # c = win32com.client.gencache.EnsureDispatch("iTunes.Application")
             raise NotImplementedError("Sorry, there's no Windows support yet.")
         elif sys.platform == "darwin": # OS X
             pass

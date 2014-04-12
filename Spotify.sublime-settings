@@ -1,6 +1,6 @@
 {
 	// Restart sublime if you don't see your changes!
-	
+
 	// Time in seconds to display current track information in the status bar.
 	// Values < 0 will show the status any time Spotify is open.
 	// 0 will disable this feature.
