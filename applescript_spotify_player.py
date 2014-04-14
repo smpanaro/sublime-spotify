@@ -4,7 +4,7 @@ import sublime
 from subprocess import Popen, PIPE
 
 try:
-    from SublimeSpotify.singleton import Singleton
+    from Spotify.singleton import Singleton
 except:
     from singleton import Singleton
 

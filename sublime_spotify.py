@@ -12,8 +12,8 @@ except: # ST3
 
 sublime3 = int(sublime.version()) >= 3000
 if sublime3:
-    from SublimeSpotify.applescript_spotify_player import AppleScriptSpotifyPlayer as SpotifyPlayer
-    from SublimeSpotify.status_updater import MusicPlayerStatusUpdater
+    from Spotify.applescript_spotify_player import AppleScriptSpotifyPlayer as SpotifyPlayer
+    from Spotify.status_updater import MusicPlayerStatusUpdater
 else:
     from spotify_player import SpotifyPlayer
     from status_updater import MusicPlayerStatusUpdater

@@ -1,6 +1,6 @@
-Sublime 1.1.0 Changelog
+Spotify for Sublime 1.1.0 Changelog
 
-Thanks for using SublimeSpotify! I'm happy to announce support for ST3 with this version. 
+Thanks for using Spotify for Sublime! I'm happy to announce support for ST3 with this version. 
 
 I would also like to take the opportunity to remind you that there are settings (that should be now available in the preferences menu) to tweak what song info is displayed and how long it should be displayed for.
 

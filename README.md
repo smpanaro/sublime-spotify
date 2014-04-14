@@ -1,4 +1,4 @@
-Sublime Spotify
+Spotify for Sublime
 ===============
 
 Control Spotify from the command palette.
@@ -13,9 +13,9 @@ Requirements
 
 Installation
 -------
-**The easy way**: Install [Package Control](https://sublime.wbond.net/installation). Bring up the Command Pallete. Select "Package Control: Install Package", and select SublimeSpotify after the list appears.
+**The easy way**: Install [Package Control](https://sublime.wbond.net/installation). Bring up the Command Pallete. Select "Package Control: Install Package", and select Spotify after the list appears.
 
-**The other way**: Clone this repository and copy the folder to `~/Library/Application Support/Sublime Text 2/Packages/` or `~/Library/Application Support/Sublime Text 3/Packages/` depending on your version of Sublime.
+**The other way**: Clone this repository to `~/Library/Application Support/Sublime Text 2/Packages/Spotify/` or `~/Library/Application Support/Sublime Text 3/Packages/Spotify/` depending on your version of Sublime.
 
 Usage
 -----
@@ -28,4 +28,4 @@ Commands include:
 * Repeat/Shuffle
 * Now Playing
 
-Settings can be found in `Sublime Text -> Preferences -> Package Settings -> SublimeSpotify`. 
+Settings can be found in `Sublime Text -> Preferences -> Package Settings -> Spotify`. 

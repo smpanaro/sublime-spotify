@@ -10,7 +10,7 @@
         "id": "package-settings",
         "children": [
           {
-            "caption": "SublimeSpotify",
+            "caption": "Spotify",
             "children": [
               {
                 "caption": "-"
@@ -18,7 +18,7 @@
               {
                 "command": "open_file",
                 "args": {
-                  "file": "${packages}/SublimeSpotify/Spotify.sublime-settings"
+                  "file": "${packages}/Spotify/Spotify.sublime-settings"
                 },
                 "caption": "Settings – Default"
               },

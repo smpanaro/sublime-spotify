@@ -4,7 +4,7 @@ import sublime
 
 sublime3 = int(sublime.version()) >= 3000
 if sublime3:
-    from SublimeSpotify.singleton import Singleton
+    from Spotify.singleton import Singleton
 else:
     from ScriptingBridge import SBApplication
     from singleton import Singleton
